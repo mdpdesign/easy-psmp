@@ -32,18 +32,18 @@ Next, two ENV variables must be available/exported in current shell session:
 
 ```bash
 export ESSH_PSW='YourSuper$ecretP@ssw0rd'
-export ESSH TOTP_SECRET='OTP_32CHAR_SECRET'
+export ESSH_TOTP_SECRET='OTP_32CHAR_SECRET'
 ```
 
 > Note: ENV variables can be also specified in '.env' file, as the script will try to load it
 
-Before executing 'essh.py` script, make sure all required libraries are installed and available
+Before executing `essh.py` script, make sure all required libraries are installed and available
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Once this is configured properly we can use 'essh.py script to login to host via SSH non-interactively - this means
+Once this is configured properly we can use `essh.py` script to login to host via SSH non-interactively - this means
 no manual typing of required information into terminal
 
 ```bash
