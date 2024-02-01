@@ -9,6 +9,7 @@ import pexpect
 import pyotp
 from dotenv import load_dotenv
 
+
 def get_terminal_size() -> tuple:
     """Get current terminal size
 
@@ -65,6 +66,7 @@ def main(args: any) -> int:
     except Exception as e:
         print(f"Exception:\n{e}")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
