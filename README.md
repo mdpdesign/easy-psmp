@@ -2,7 +2,7 @@
 
 A set of scripts and utilities to work easier with PSMP - mainly for SSH and SCP
 
-## SSH script setup
+## SSH/SCP script setup
 
 To use PSMP with SSH, for the convinience, host connection should be properly configured, for e.g.:
 
@@ -31,26 +31,52 @@ Host *
 Next, two ENV variables must be available/exported in current shell session:
 
 ```bash
-export ESSH_PSW='YourSuper$ecretP@ssw0rd'
-export ESSH_TOTP_SECRET='OTP_32CHAR_SECRET'
+export EPSMP_PSW='YourSuper$ecretP@ssw0rd'
+export EPSMP_TOTP_SECRET='OTP_32CHAR_SECRET'
 ```
 
 > Note: ENV variables can be also specified in '.env' file, as the script will try to load it
 
-Before executing `essh.py` script, make sure all required libraries are installed and available
+Before executing `epsmp` script, make sure all required libraries are installed and available
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Once this is configured properly we can use `essh.py` script to login to host via SSH non-interactively - this means
+Once this is configured properly we can use `epsmp` script to login to host via SSH non-interactively - this means
 no manual typing of required information into terminal
 
 ```bash
-python essh.py host1
+# Usage
+python epsmp.py -h
+
+# For SSH
+python epsmp.py ssh host1
+
+# For SCP
+python epsmp.py scp host1:/home/file .
+```
+
+## Additional configuration of SSH/SCP
+
+It's possible to create `epsmpcfg.yaml` file in the same directory as the script, containing additional configuration for SSH and/or SCP,
+it allows to configure custom `binary` and `arguments` that will be used as defaults for the respective command.
+Check `epsmpcfg.yaml.example` file for details
+
+## Debugging
+
+It's possible to export ENV variable `EPSMP_DEBUG` and set it to any non-empty value or provide `--debug` flag, to debug script execution
+and log information to local file: `epsmp-dbglog.log`
+
+```bash
+# Enable debug with ENV variable
+export EPSMP_DEBUG=1
+python epsmp.py ssh -l user -p 22 hostname
+
+# Enable debug with command line flag
+python epsmp.py ssh --debug -l user -p 22 hostname
 ```
 
 ## TODO
 
-- Make `essh.py` script available in PATH and to work like a simple binary: `essh host1` etc.
-- Make `SCP` version of the script
+- Make `epsmp.py` script available in PATH and to work like a simple binary: `essh host1` or `escp host1:/home/file .` etc.
