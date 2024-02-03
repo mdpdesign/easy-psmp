@@ -2,7 +2,7 @@
 
 A set of scripts and utilities to work easier with PSMP - mainly for SSH and SCP
 
-## SSH script setup
+## SSH/SCP script setup
 
 To use PSMP with SSH, for the convinience, host connection should be properly configured, for e.g.:
 
@@ -37,20 +37,27 @@ export EPSMP_TOTP_SECRET='OTP_32CHAR_SECRET'
 
 > Note: ENV variables can be also specified in '.env' file, as the script will try to load it
 
-Before executing `essh.py` script, make sure all required libraries are installed and available
+Before executing `epsmp` script, make sure all required libraries are installed and available
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Once this is configured properly we can use `essh.py` script to login to host via SSH non-interactively - this means
+Once this is configured properly we can use `epsmp` script to login to host via SSH non-interactively - this means
 no manual typing of required information into terminal
 
 ```bash
-python essh.py host1
+# For SSH
+python epsmp.py ssh host1
+
+# For SCP
+python epsmp.py scp host1:/home/file .
 ```
+
+## Debugging
+
+It's possible to export ENV variable `EPSMP_DEBUG=true`, to debug script execution and log information to file `epsmp-dbglog.log`
 
 ## TODO
 
-- Make `essh.py` script available in PATH and to work like a simple binary: `essh host1` etc.
-- Make `SCP` version of the script
+- Make `epsmp.py` script available in PATH and to work like a simple binary: `essh host1` or `escp host1:/home/file .` etc.
