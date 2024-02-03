@@ -1,11 +1,11 @@
+import argparse
 import fcntl
+import logging
 import os
 import signal
 import struct
 import sys
 import termios
-import logging
-import argparse
 
 import pexpect
 import pyotp
@@ -32,14 +32,15 @@ def main(ecmd: EasyCommand, argv: list) -> int:
     providing interactively password, OTP and reason for login
 
     Args:
-        args (any): Arguments passed to SSH/SCP command
+        ecmd (EasyCommand): Specific command implementation to execute
+        argv (list): Arguments passed to SSH/SCP command
 
     Returns:
         int: Exit code: 0 OK, 1 Error
     """
 
     # This function is inside the "main" to have access to "child" object that otherwise
-    # would have to be a "global" object and we would have difficulties with context manager
+    # would have to be a "global" object and we could have difficulties with context manager
     def sigwinch_passthrough(sig: int, data: any) -> None:
         if not child.closed:
             child.setwinsize(*get_terminal_size())

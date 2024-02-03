@@ -18,7 +18,7 @@ class EasyCommand(ABC):
 
 
 def load_config() -> dict:
-    """Loads easy-psmp configuration file 'epsmpcfg.y*ml' and returns it as dictionary
+    """Loads Easy-PSMP configuration file 'epsmpcfg.y*ml' and returns it as dictionary
 
     Returns:
         dict: dictionary with configuration settings, or empty dict when config file can't be loaded
