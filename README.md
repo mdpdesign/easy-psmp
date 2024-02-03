@@ -1,10 +1,10 @@
 # Easy PSMP
 
-A set of scripts and utilities to work easier with PSMP - mainly for SSH and SCP
+A set of scripts and utilities to work easier with CyberArk PSMP - mainly for SSH and SCP
 
 ## SSH/SCP script setup
 
-To use PSMP with SSH, for the convinience, host connection should be properly configured, for e.g.:
+To use PSMP with SSH or SCP, for the convenience, host connection should be properly configured, for e.g.:
 
 ```text
 # cat ~/.ssh/config
