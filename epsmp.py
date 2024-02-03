@@ -5,7 +5,7 @@ import struct
 import sys
 import termios
 import logging
-from pprint import pprint
+import argparse
 
 import pexpect
 import pyotp
@@ -27,7 +27,7 @@ def get_terminal_size() -> tuple:
     return a[0], a[1]
 
 
-def main(ecmd: EasyCommand, args: list) -> int:
+def main(ecmd: EasyCommand, argv: list) -> int:
     """Performs non-interactive SSH/SCP login command to PSMP that requires
     providing interactively password, OTP and reason for login
 
@@ -49,9 +49,9 @@ def main(ecmd: EasyCommand, args: list) -> int:
     opts: list = ecmd.get_arguments()
 
     try:
-        with pexpect.spawn(binary, opts + args[2:], encoding="utf-8") as child:
+        with pexpect.spawn(binary, opts + argv, encoding="utf-8") as child:
 
-            logger.debug(f"Using {binary} binary, with arguments: {opts + args[2:]}")
+            logger.debug(f"Using {binary} binary, with arguments: {opts + argv}")
             logger.debug(f"Setting child size {get_terminal_size()} and SIGWINCH")
 
             child.logfile_read = sys.stdout
@@ -83,9 +83,22 @@ def main(ecmd: EasyCommand, args: list) -> int:
 
 if __name__ == "__main__":
 
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "cmd",
+        help="Specify command to run, possible choices: %(choices)s",
+        choices=["ssh", "scp"],
+    )
+    parser.add_argument(
+        "--debug", help="Enable debug logging to local log file", action="store_true"
+    )
+    args, args_other = parser.parse_known_args()
+
     load_dotenv()
 
-    debug: bool = os.getenv("EPSMP_DEBUG", False)
+    # Note that setting EPSMP_DEBUG ENV var to any non-empty value will enable debug log
+    debug: bool = any([args.debug, os.getenv("EPSMP_DEBUG", False)])
+
     logger = logging.getLogger("epsmp-logger")
     logging.basicConfig(
         filename="epsmp-dbglog.log" if debug else None,
@@ -95,15 +108,10 @@ if __name__ == "__main__":
 
     ecmd: EasyCommand
 
-    # TODO: Possibly use argparse module for this...
-    match sys.argv[1]:
+    match args.cmd:
         case "ssh":
             ecmd = EasySSH()
         case "scp":
             ecmd = EasySCP()
-        case _:
-            raise NotImplementedError(
-                "Missing argument 'ssh' or 'scp', or this command is not implemented"
-            )
 
-    sys.exit(main(ecmd, sys.argv))
+    exit(main(ecmd, args_other))

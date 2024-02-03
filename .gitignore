@@ -28,6 +28,10 @@ ENV/
 env.bak/
 venv.bak/
 
+# Config file
+epsmpcfg.y*ml
+!epsmpcfg.y*ml.example
+
 # Logs
 *.log
 

@@ -47,6 +47,9 @@ Once this is configured properly we can use `epsmp` script to login to host via 
 no manual typing of required information into terminal
 
 ```bash
+# Usage
+python epsmp.py -h
+
 # For SSH
 python epsmp.py ssh host1
 
@@ -56,14 +59,23 @@ python epsmp.py scp host1:/home/file .
 
 ## Additional configuration of SSH/SCP
 
-It's possible to create `epsmpcfg.yaml` file containing additional configuration for SSH and/or SCP, it allows to configure custom
-`binary` and `arguments` that will be used as defaults for the respective command. Check `epsmpcfg.yaml.example` file for details
-
-> Note: It's always possible to override any configured arguments via the command line arguments passed to `epsmp.py` script
+It's possible to create `epsmpcfg.yaml` file in the same directory as the script, containing additional configuration for SSH and/or SCP,
+it allows to configure custom `binary` and `arguments` that will be used as defaults for the respective command.
+Check `epsmpcfg.yaml.example` file for details
 
 ## Debugging
 
-It's possible to export ENV variable `EPSMP_DEBUG=true`, to debug script execution and log information to file `epsmp-dbglog.log`
+It's possible to export ENV variable `EPSMP_DEBUG` and set it to any non-empty value or provide `--debug` flag, to debug script execution
+and log information to local file: `epsmp-dbglog.log`
+
+```bash
+# Enable debug with ENV variable
+export EPSMP_DEBUG=1
+python epsmp.py ssh -l user -p 22 hostname
+
+# Enable debug with command line flag
+python epsmp.py ssh --debug -l user -p 22 hostname
+```
 
 ## TODO
 
