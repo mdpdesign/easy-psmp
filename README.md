@@ -54,6 +54,13 @@ python epsmp.py ssh host1
 python epsmp.py scp host1:/home/file .
 ```
 
+## Additional configuration of SSH/SCP
+
+It's possible to create `epsmpcfg.yaml` file containing additional configuration for SSH and/or SCP, it allows to configure custom
+`binary` and `arguments` that will be used as defaults for the respective command. Check `epsmpcfg.yaml.example` file for details
+
+> Note: It's always possible to override any configured arguments via the command line arguments passed to `epsmp.py` script
+
 ## Debugging
 
 It's possible to export ENV variable `EPSMP_DEBUG=true`, to debug script execution and log information to file `epsmp-dbglog.log`

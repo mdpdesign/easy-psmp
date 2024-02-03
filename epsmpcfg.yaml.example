@@ -4,3 +4,10 @@ ssh:
     - -o UserKnownHostsFile=/dev/null
     - -o StrictHostKeyChecking=no
     - -o Port=22
+
+scp:
+  binary: /usr/bin/scp
+  arguments:
+    - -o UserKnownHostsFile=/dev/null
+    - -o StrictHostKeyChecking=no
+    - -P 2222

@@ -49,10 +49,8 @@ def main(ecmd: EasyCommand, args: list) -> int:
     opts: list = ecmd.get_arguments()
 
     try:
-        logger.debug("Trying to load .env file")
-        load_dotenv()
-
         with pexpect.spawn(binary, opts + args[2:], encoding="utf-8") as child:
+
             logger.debug(f"Using {binary} binary, with arguments: {opts + args[2:]}")
             logger.debug(f"Setting child size {get_terminal_size()} and SIGWINCH")
 
@@ -78,12 +76,14 @@ def main(ecmd: EasyCommand, args: list) -> int:
 
         logger.debug("Finished expect, everything OK")
         return 0
-    except Exception as e:
-        logger.debug(f"Exception: {e}")
+    except:
+        logger.debug("Failed to execute expect", exc_info=True)
         return 1
 
 
 if __name__ == "__main__":
+
+    load_dotenv()
 
     debug: bool = os.getenv("EPSMP_DEBUG", False)
     logger = logging.getLogger("epsmp-logger")
@@ -95,12 +95,15 @@ if __name__ == "__main__":
 
     ecmd: EasyCommand
 
+    # TODO: Possibly use argparse module for this...
     match sys.argv[1]:
         case "ssh":
             ecmd = EasySSH()
         case "scp":
             ecmd = EasySCP()
         case _:
-            raise NotImplementedError("This command is not implemented")
+            raise NotImplementedError(
+                "Missing argument 'ssh' or 'scp', or this command is not implemented"
+            )
 
     sys.exit(main(ecmd, sys.argv))
