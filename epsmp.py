@@ -4,6 +4,7 @@ import signal
 import struct
 import sys
 import termios
+import logging
 from pprint import pprint
 
 import pexpect
@@ -43,26 +44,30 @@ def main(ecmd: EasyCommand, args: list) -> int:
         if not child.closed:
             child.setwinsize(*get_terminal_size())
 
+    logger = logging.getLogger("epsmp-logger")
     binary: str = ecmd.get_binary()
     opts: list = ecmd.get_arguments()
 
     try:
+        logger.debug("Trying to load .env file")
         load_dotenv()
 
         with pexpect.spawn(binary, opts + args[2:], encoding="utf-8") as child:
-
-            pprint(opts + args[2:])
+            logger.debug(f"Using {binary} binary, with arguments: {opts + args[2:]}")
+            logger.debug(f"Setting child size {get_terminal_size()} and SIGWINCH")
 
             child.logfile_read = sys.stdout
             child.setwinsize(*get_terminal_size())
             signal.signal(signal.SIGWINCH, sigwinch_passthrough)
 
+            logger.debug(f"Starting expect")
+
             child.expect("[Pp]assword:")
-            child.sendline(os.getenv("ESSH_PSW"))
+            child.sendline(os.getenv("EPSMP_PSW"))
 
             # child.expect_exact("RADIUS challenge:")
             # child.sendline(
-            #     pyotp.TOTP(os.getenv("ESSH_TOTP_SECRET"), digits=6, interval=30).now()
+            #     pyotp.TOTP(os.getenv("EPSMP_TOTP_SECRET"), digits=6, interval=30).now()
             # )
 
             # child.expect_exact("reason for this operation:")
@@ -71,13 +76,22 @@ def main(ecmd: EasyCommand, args: list) -> int:
             child.logfile_read = None
             child.interact()
 
+        logger.debug("Finished expect, everything OK")
         return 0
     except Exception as e:
-        print(f"Exception:\n{e}")
+        logger.debug(f"Exception: {e}")
         return 1
 
 
 if __name__ == "__main__":
+
+    debug: bool = os.getenv("EPSMP_DEBUG", False)
+    logger = logging.getLogger("epsmp-logger")
+    logging.basicConfig(
+        filename="epsmp-dbglog.log" if debug else None,
+        level=logging.DEBUG if debug else logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(module)s - %(message)s",
+    )
 
     ecmd: EasyCommand
 

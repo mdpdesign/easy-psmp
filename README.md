@@ -31,8 +31,8 @@ Host *
 Next, two ENV variables must be available/exported in current shell session:
 
 ```bash
-export ESSH_PSW='YourSuper$ecretP@ssw0rd'
-export ESSH_TOTP_SECRET='OTP_32CHAR_SECRET'
+export EPSMP_PSW='YourSuper$ecretP@ssw0rd'
+export EPSMP_TOTP_SECRET='OTP_32CHAR_SECRET'
 ```
 
 > Note: ENV variables can be also specified in '.env' file, as the script will try to load it

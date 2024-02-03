@@ -28,6 +28,9 @@ ENV/
 env.bak/
 venv.bak/
 
+# Logs
+*.log
+
 # Pyre type checker
 .pyre/
 
