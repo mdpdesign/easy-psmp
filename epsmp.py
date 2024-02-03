@@ -49,9 +49,9 @@ def main(ecmd: EasyCommand, args: list) -> int:
     try:
         load_dotenv()
 
-        with pexpect.spawn(binary, opts + args[1:], encoding="utf-8") as child:
+        with pexpect.spawn(binary, opts + args[2:], encoding="utf-8") as child:
 
-            pprint(opts + args[1:])
+            pprint(opts + args[2:])
 
             child.logfile_read = sys.stdout
             child.setwinsize(*get_terminal_size())

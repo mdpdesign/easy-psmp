@@ -1,0 +1,6 @@
+ssh:
+  binary: /usr/bin/ssh
+  arguments:
+    - -o UserKnownHostsFile=/dev/null
+    - -o StrictHostKeyChecking=no
+    - -o Port=22
