@@ -1,6 +1,6 @@
-# Terraform development container (experimental)
+# Development container
 
-This directory contains a set of files to set up a reproducible and disposable development environment for Terraform in Visual Studio Code using the [Remote - Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers).
+This directory contains a set of files to set up a reproducible and disposable development environment in Visual Studio Code using the [Remote - Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers).
 
 ## Supported features
 
