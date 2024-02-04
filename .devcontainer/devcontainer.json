@@ -83,5 +83,8 @@
     "postCreateCommand": {
         "install-requirements": ".devcontainer/venv-init.sh"
         // "pre-commit": "pre-commit install --install-hooks"
+    },
+    "postStartCommand": {
+        "diff-so-fancy": "git config --global core.pager 'diff-so-fancy | less --tabs=4 -RF' && git config --global interactive.diffFilter 'diff-so-fancy --patch'"
     }
 }

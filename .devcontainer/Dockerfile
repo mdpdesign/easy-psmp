@@ -65,6 +65,9 @@ RUN mkdir -m a=rwx -p ${TOOLS_TMP} && cd ${TOOLS_TMP} \
     && dpkg -i lsd.deb \
     && rm -rf ${TOOLS_TMP}
 
+RUN git clone https://github.com/so-fancy/diff-so-fancy.git /opt/diff-so-fancy \
+    && ln -s /opt/diff-so-fancy/diff-so-fancy /usr/local/bin/diff-so-fancy
+
 USER ${UID}
 
 # Update PATH variable for tools that will be installed
