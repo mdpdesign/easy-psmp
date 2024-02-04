@@ -16,7 +16,7 @@ pushd ~/.easy-psmp && virtualenv .venv && source ~/.easy-psmp/.venv/bin/activate
     && pip install -r requirements.txt \
     && popd
 
-# Create symbolic links to provided commands
+# Ensure scripts are executable & create symbolic links for provided commands
 chmod +x ~/.easy-psmp/essh.sh && sudo ln -s ~/.easy-psmp/essh.sh /usr/local/bin/essh
 chmod +x ~/.easy-psmp/escp.sh && sudo ln -s ~/.easy-psmp/escp.sh /usr/local/bin/escp
 ```
@@ -54,25 +54,33 @@ export EPSMP_PSW='YourSuper$ecretP@ssw0rd'
 export EPSMP_TOTP_SECRET='OTP_32CHAR_SECRET'
 ```
 
-> Note: ENV variables can be also specified in '.env' file, as the script will try to load it
+> Note: ENV variables can be also specified in '.env' file inside installation directory, as the script will try to load it
 
-Before executing `epsmp` script, make sure all required libraries are installed and available
+Before executing `essh|escp|epsmp` script(s), make sure all required libraries are installed and available
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Once this is configured properly we can use `epsmp` script to login to host via SSH non-interactively - this means
+Once this is configured properly we can use `essh|escp|epsmp` script(s) to login to host via SSH non-interactively - this means
 no manual typing of required information into terminal
 
 ```bash
 # Usage
-python epsmp.py -h
+essh -h
+escp -h
 
 # For SSH
-python epsmp.py ssh host1
+essh host1
+essh --debug -p 22 user@hostname
 
 # For SCP
+escp host1:/home/file .
+escp --debug -P 2222 host1:/home/file .
+
+# W/o setting up execution scripts
+python epsmp.py -h
+python epsmp.py ssh host1
 python epsmp.py scp host1:/home/file .
 ```
 
@@ -90,12 +98,14 @@ and log information to local file: `epsmp-dbglog.log`
 ```bash
 # Enable debug with ENV variable
 export EPSMP_DEBUG=1
+essh -l user -p 22 hostname # or
 python epsmp.py ssh -l user -p 22 hostname
 
 # Enable debug with command line flag
+essh --debug -l user -p 22 hostname # or
 python epsmp.py ssh --debug -l user -p 22 hostname
 ```
 
 ## TODO
 
-- Make `epsmp.py` script available in PATH and to work like a simple binary: `essh host1` or `escp host1:/home/file .` etc.
+- Possibly simplify installation steps with script

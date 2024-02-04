@@ -53,7 +53,7 @@ def main(ecmd: EasyCommand, argv: list) -> int:
     try:
         with pexpect.spawn(binary, opts + argv, encoding="utf-8") as child:
 
-            logger.debug(f"Using {binary} binary, with arguments: {opts + argv}")
+            logger.debug(f"Using '{binary}' binary, with arguments: {opts + argv}")
             logger.debug(f"Setting child size {get_terminal_size()} and SIGWINCH")
 
             child.logfile_read = sys.stdout
