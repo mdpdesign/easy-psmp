@@ -60,10 +60,14 @@ RUN if ! grep -qE '^docker:' /etc/group; then \
 # Install tools
 ARG TOOLS_TMP=/tmp/tools
 ARG LSD_VER=1.0.0
+ARG DIRENV_VER=2.33.0
 RUN mkdir -m a=rwx -p ${TOOLS_TMP} && cd ${TOOLS_TMP} \
     && curl -sSL https://github.com/lsd-rs/lsd/releases/download/v${LSD_VER}/lsd_${LSD_VER}_amd64.deb -o lsd.deb \
     && dpkg -i lsd.deb \
     && rm -rf ${TOOLS_TMP}
+
+RUN curl -sSL https://github.com/direnv/direnv/releases/download/v${DIRENV_VER}/direnv.linux-amd64 -o /usr/local/bin/direnv \
+    && chmod +x /usr/local/bin/direnv
 
 RUN git clone https://github.com/so-fancy/diff-so-fancy.git /opt/diff-so-fancy \
     && ln -s /opt/diff-so-fancy/diff-so-fancy /usr/local/bin/diff-so-fancy
@@ -93,6 +97,7 @@ RUN pyenv install ${PYTHON_VER} \
 # Install Python packages & tools
 RUN pip install --upgrade pip pre-commit
 
+COPY --chown=${UID}:${GID} --chmod=644 direnv.toml ${USER_HOME}/.config/direnv/direnv.toml
 COPY --chown=${UID}:${GID} --chmod=644 .zshrc ${USER_HOME}/.zshrc
 COPY --chown=${UID}:${GID} --chmod=644 .p10k.zsh ${USER_HOME}/.p10k.zsh
 

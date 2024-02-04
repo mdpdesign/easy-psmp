@@ -19,7 +19,7 @@
       "SOME_VAR": "${containerEnv:SOME_VAR}"
     },
 
-    // Mount kubectl binary from WSL2 host as it's simple that way
+    // Mount docker binary from WSL2 host as it's simple that way
     // adjust paths etc. for your config
     "mounts": [
         // Docker

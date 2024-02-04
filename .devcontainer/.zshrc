@@ -50,3 +50,6 @@ alias lt='ls --tree'
 
 # Pyenv setup
 eval "$(pyenv init -)"
+
+# Init direnv
+eval "$(direnv hook zsh)"
