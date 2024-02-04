@@ -7,6 +7,8 @@ import struct
 import sys
 import termios
 
+from typing import Any
+
 import pexpect
 import pyotp
 from dotenv import load_dotenv
@@ -41,7 +43,7 @@ def main(ecmd: EasyCommand, argv: list) -> int:
 
     # This function is inside the "main" to have access to "child" object that otherwise
     # would have to be a "global" object and we could have difficulties with context manager
-    def sigwinch_passthrough(sig: int, data: any) -> None:
+    def sigwinch_passthrough(sig: int, data: Any) -> None:
         if not child.closed:
             child.setwinsize(*get_terminal_size())
 
@@ -114,5 +116,7 @@ if __name__ == "__main__":
             ecmd = EasySSH()
         case "scp":
             ecmd = EasySCP()
+        case _:
+            raise AttributeError("Command not implemented")
 
     exit(main(ecmd, args_other))

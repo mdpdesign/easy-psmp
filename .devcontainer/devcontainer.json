@@ -1,0 +1,87 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.245.2/containers/ubuntu
+{
+    "name": "Ubuntu Python",
+    "build": {
+        "dockerfile": "Dockerfile",
+        // Update 'VARIANT' to pick an Ubuntu version: jammy / ubuntu-22.04, focal / ubuntu-20.04, bionic /ubuntu-18.04
+        "args": {
+            "VARIANT": "jammy",
+            "LSD_VER": "1.0.0",
+            "PYTHON_VER": "3.12.1"
+        }
+    },
+    // Investigate this option - require docker rm <ID>
+    // "overrideCommand": false,
+    "runArgs": ["--init", "--env-file",".devcontainer/devcontainer.env"],
+    "remoteEnv": {
+      // Sets environment variables
+      "SOME_VAR": "${containerEnv:SOME_VAR}"
+    },
+
+    // Mount kubectl binary from WSL2 host as it's simple that way
+    // adjust paths etc. for your config
+    "mounts": [
+        // Docker
+        // "source=/usr/bin/docker,target=/usr/bin/docker,type=bind,readonly",
+        // "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+    ],
+
+    // Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
+    "remoteUser": "vscode",
+    "customizations": {
+        "vscode": {
+            // It's required to set host proxy to download VSCode extensions - it should be docker bridge interface (assuming cntlm is listening on all interfaces)
+            "settings": {
+                "shellformat.useEditorConfig": true,
+                "python.terminal.activateEnvInCurrentTerminal": true,
+                "python.testing.pytestArgs": ["tests", "--verbose"],
+                "python.testing.unittestEnabled": false,
+                "python.testing.pytestEnabled": true,
+                "python.analysis.typeCheckingMode": "basic",
+                "[python]": {
+                    "editor.defaultFormatter": "ms-python.black-formatter",
+                    "editor.formatOnSave": true
+                }
+            },
+
+            // Sometimes there is a need to reload the window after rebuilding container
+            // as extensions having common dependencies don't activate properly
+            // black formatter + python for e.g.
+            // See https://github.com/microsoft/vscode/issues/149309
+            "extensions": [
+                "aaron-bond.better-comments",
+                "DavidAnson.vscode-markdownlint",
+                "eamodio.gitlens",
+                "EditorConfig.EditorConfig",
+                "esbenp.prettier-vscode",
+                "formulahendry.code-runner",
+                "foxundermoon.shell-format",
+                "hilleer.yaml-plus-json",
+                "mads-hartmann.bash-ide-vscode",
+                "mhutchie.git-graph",
+                "mhutchie.git-graph",
+                "mikestead.dotenv",
+                "ms-azuretools.vscode-docker",
+                "ms-python.black-formatter",
+                "ms-python.isort",
+                "ms-python.python",
+                "njpwerner.autodocstring",
+                "redhat.vscode-yaml",
+                "timonwong.shellcheck",
+                "visualstudioexptteam.intellicode-api-usage-examples",
+                "visualstudioexptteam.vscodeintellicode",
+                "yzhang.markdown-all-in-one"
+            ]
+        }
+    },
+
+    // Use 'forwardPorts' to make a list of ports inside the container available locally.
+    // "forwardPorts": [],
+
+    // Use 'postCreateCommand' to run commands after the container is created.
+    "postCreateCommand": {
+        "install-requirements": ".devcontainer/venv-init.sh"
+        // "pre-commit": "pre-commit install --install-hooks"
+    }
+}
