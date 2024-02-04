@@ -17,8 +17,8 @@ pushd ~/.easy-psmp && virtualenv .venv && source ~/.easy-psmp/.venv/bin/activate
     && popd
 
 # Create symbolic links to provided commands
-sudo ln -s ~/.easy-psmp/essh.sh /usr/local/bin/essh
-sudo ln -s ~/.easy-psmp/escp.sh /usr/local/bin/escp
+chmod +x ~/.easy-psmp/essh.sh && sudo ln -s ~/.easy-psmp/essh.sh /usr/local/bin/essh
+chmod +x ~/.easy-psmp/escp.sh && sudo ln -s ~/.easy-psmp/escp.sh /usr/local/bin/escp
 ```
 
 ### General setup
