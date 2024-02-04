@@ -4,6 +4,25 @@ A set of scripts and utilities to work easier with CyberArk PSMP - mainly for SS
 
 ## SSH/SCP script setup
 
+### Installation
+
+```bash
+# Clone repository to home directory
+git clone --depth 1 https://github.com/mdpdesign/easy-psmp.git ~/.easy-psmp
+
+# Initialize vitual environment - make sure you have "virtualenv" available
+# alternatively replace it with "python -m venv .venv"
+pushd ~/.easy-psmp && virtualenv .venv && source ~/.easy-psmp/.venv/bin/activate \
+    && pip install -r requirements.txt \
+    && popd
+
+# Create symbolic links to provided commands
+sudo ln -s ~/.easy-psmp/essh.sh /usr/local/bin/essh
+sudo ln -s ~/.easy-psmp/escp.sh /usr/local/bin/escp
+```
+
+### General setup
+
 To use PSMP with SSH or SCP, for the convenience, host connection should be properly configured, for e.g.:
 
 ```text
