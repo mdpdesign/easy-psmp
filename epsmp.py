@@ -7,6 +7,7 @@ import struct
 import sys
 import termios
 from typing import Any
+from collections import OrderedDict
 
 import pexpect
 import pyotp
@@ -62,16 +63,25 @@ def main(ecmd: EasyCommand, argv: list) -> int:
 
             logger.debug(f"Starting expect")
 
-            child.expect("[Pp]assword:")
-            child.sendline(os.getenv("EPSMP_PSW"))
+            expected_answers: OrderedDict = OrderedDict({
+                "[Pp]assword": lambda: child.sendline(os.getenv("EPSMP_PSW")),
+                "[Mm]ulti-factor authentication is required": lambda: child.sendline(
+                    pyotp.TOTP(
+                        os.getenv("EPSMP_TOTP_SECRET"), digits=6, interval=30
+                    ).now()
+                ),
+                "[Rr]eason for this operation": lambda: child.sendline("BAU"),
+            })
 
-            child.expect("[Mm]ulti-factor authentication is required")
-            child.sendline(
-                pyotp.TOTP(os.getenv("EPSMP_TOTP_SECRET"), digits=6, interval=30).now()
-            )
-
-            child.expect("[Rr]eason for this operation")
-            child.sendline("BAU")
+            for k, v in expected_answers.items():
+                try:
+                    logger.debug(f"Expecting: '{k}'")
+                    index: int = child.expect(k, timeout=3)
+                    if index == 0:
+                        logger.debug(f"Expected: '{k}' matched")
+                        v()
+                except pexpect.exceptions.TIMEOUT:
+                    logger.debug(f"Expected: '{k}' did not match, moving on", exc_info=True)
 
             child.logfile_read = None
             child.interact()
