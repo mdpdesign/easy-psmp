@@ -73,6 +73,9 @@ def main(ecmd: EasyCommand, argv: list) -> int:
                 "[Rr]eason for this operation": lambda: child.sendline("BAU"),
             })
 
+            # This allows to "unblock" the prompt even if some expected prompts don't match
+            # it will wait 3 sec. for each prompt and then move on..
+            # TODO: try asyncio with pexpect
             for k, v in expected_answers.items():
                 try:
                     logger.debug(f"Expecting: '{k}'")
