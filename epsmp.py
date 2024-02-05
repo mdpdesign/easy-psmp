@@ -65,13 +65,13 @@ def main(ecmd: EasyCommand, argv: list) -> int:
             child.expect("[Pp]assword:")
             child.sendline(os.getenv("EPSMP_PSW"))
 
-            # child.expect_exact("RADIUS challenge:")
-            # child.sendline(
-            #     pyotp.TOTP(os.getenv("EPSMP_TOTP_SECRET"), digits=6, interval=30).now()
-            # )
+            child.expect("[Mm]ulti-factor authentication is required")
+            child.sendline(
+                pyotp.TOTP(os.getenv("EPSMP_TOTP_SECRET"), digits=6, interval=30).now()
+            )
 
-            # child.expect_exact("reason for this operation:")
-            # child.sendline("BAU")
+            child.expect("[Rr]eason for this operation")
+            child.sendline("BAU")
 
             child.logfile_read = None
             child.interact()
