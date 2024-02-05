@@ -6,7 +6,7 @@ import signal
 import struct
 import sys
 import termios
-from typing import Any
+from typing import Any, Callable
 from collections import OrderedDict
 
 import pexpect
@@ -29,7 +29,7 @@ def get_terminal_size() -> tuple:
     return a[0], a[1]
 
 
-def main(ecmd: EasyCommand, argv: list) -> int:
+def main(cmd: str, ecmd: EasyCommand, argv: list) -> int:
     """Performs non-interactive SSH/SCP login command to PSMP that requires
     providing interactively password, OTP and reason for login
 
@@ -63,36 +63,72 @@ def main(ecmd: EasyCommand, argv: list) -> int:
 
             logger.debug(f"Starting expect")
 
-            expected_answers: OrderedDict = OrderedDict({
-                "[Pp]assword": lambda: child.sendline(os.getenv("EPSMP_PSW")),
-                "[Mm]ulti-factor authentication is required": lambda: child.sendline(
-                    pyotp.TOTP(
-                        os.getenv("EPSMP_TOTP_SECRET"), digits=6, interval=30
-                    ).now()
-                ),
-                "[Rr]eason for this operation": lambda: child.sendline("BAU"),
-            })
+            # Beware of patterns to match:
+            # If you pass a list of patterns and more than one matches, the first match in the stream is chosen.
+            # https://pexpect.readthedocs.io/en/stable/api/pexpect.html#pexpect.spawn.expect
+            expected_answers: OrderedDict = OrderedDict(
+                {
+                    "[Pp]assword:": lambda: child.sendline(os.getenv("EPSMP_PSW")),
+                    "[Mm]ulti-factor authentication is required.": lambda: child.sendline(
+                        pyotp.TOTP(
+                            os.getenv("EPSMP_TOTP_SECRET"), digits=6, interval=30
+                        ).now()
+                    ),
+                    "[Rr]eason for this operation:": lambda: child.sendline("BAU"),
+                    # Special cases:
+                    # SSH Logged in - don't check other patterns
+                    "[#\\$] ": lambda: None,
+                    # SCP copying file and/or closed
+                    "ETA": lambda: None,
+                    pexpect.EOF: lambda: None,
+                }
+            )
 
             # This allows to "unblock" the prompt even if some expected prompts don't match
-            # it will wait 3 sec. for each prompt and then move on..
-            # TODO: try asyncio with pexpect
-            for k, v in expected_answers.items():
+            for k in expected_answers.keys():
                 try:
-                    logger.debug(f"Expecting: '{k}'")
-                    index: int = child.expect(k, timeout=3)
-                    if index == 0:
-                        logger.debug(f"Expected: '{k}' matched")
-                        v()
-                except pexpect.exceptions.TIMEOUT:
-                    logger.debug(f"Expected: '{k}' did not match, moving on", exc_info=True)
+                    keys: list = list(expected_answers.keys())
+                    index: int = child.expect(keys)
 
+                    if index >= 0:
+                        the_key: Any = list(expected_answers.keys())[index]
+
+                        logger.debug(f"Matched expected: '{the_key}'")
+
+                        # Handle special cases - not the prettiest but it works 😅
+                        # of command already finished - EOF
+                        # if SSH is already logged in
+                        # if SCP started copying file
+                        # don't check other matches, break the loop
+                        if the_key == pexpect.EOF:
+                            logger.debug(f"Command '{cmd}' closed - EOF")
+                            break
+
+                        if cmd == "ssh" and the_key == "[#\\$] ":
+                            logger.debug("SSH logged in")
+                            break
+
+                        if cmd == "scp" and the_key == "ETA":
+                            logger.debug("SCP logged in, copying..")
+                            break
+
+                        fn: Callable = expected_answers[the_key]
+                        fn()
+                except:
+                    logger.debug(
+                        f"Expected: '{k}' did not match, moving on", exc_info=True
+                    )
+
+            logger.debug("Expect interact")
             child.logfile_read = None
             child.interact()
 
-        logger.debug("Finished expect, everything OK")
-        return 0
+        logger.debug(
+            f"=== Finished expect, '{cmd}' command exit code: {child.exitstatus}"
+        )
+        return child.exitstatus
     except:
-        logger.debug("Failed to execute expect", exc_info=True)
+        logger.debug("=== Failed to execute expect", exc_info=True)
         return 1
 
 
@@ -121,6 +157,8 @@ if __name__ == "__main__":
         format="%(asctime)s - %(levelname)s - %(module)s - %(message)s",
     )
 
+    logger.debug(f"=== Starting '{sys.argv[0]}' script")
+
     ecmd: EasyCommand
 
     match args.cmd:
@@ -131,4 +169,4 @@ if __name__ == "__main__":
         case _:
             raise AttributeError("Command not implemented")
 
-    exit(main(ecmd, args_other))
+    exit(main(args.cmd, ecmd, args_other))
