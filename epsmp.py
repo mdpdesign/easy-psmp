@@ -114,10 +114,13 @@ def main(cmd: str, ecmd: EasyCommand, argv: list) -> int:
 
                         fn: Callable = expected_answers[the_key]
                         fn()
-                except:
+                except pexpect.exceptions.TIMEOUT:
                     logger.debug(
-                        f"Expected: '{k}' did not match, moving on", exc_info=True
+                        f"=== Failed to execute expect, didn't match any of: {list(expected_answers.keys())}, exiting!",
+                        exc_info=True,
                     )
+                    child.close()
+                    return 1
 
             logger.debug("Expect interact")
             child.logfile_read = None
@@ -128,7 +131,7 @@ def main(cmd: str, ecmd: EasyCommand, argv: list) -> int:
         )
         return child.exitstatus
     except:
-        logger.debug("=== Failed to execute expect", exc_info=True)
+        logger.debug("=== Failed to execute expect, exiting!", exc_info=True)
         return 1
 
 
