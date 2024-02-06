@@ -7,7 +7,6 @@ import struct
 import sys
 import termios
 from typing import Any, Callable
-from collections import OrderedDict
 
 import pexpect
 import pyotp
@@ -66,23 +65,22 @@ def main(cmd: str, ecmd: EasyCommand, argv: list) -> int:
             # Beware of patterns to match:
             # If you pass a list of patterns and more than one matches, the first match in the stream is chosen.
             # https://pexpect.readthedocs.io/en/stable/api/pexpect.html#pexpect.spawn.expect
-            expected_answers: OrderedDict = OrderedDict(
-                {
-                    "[Pp]assword:": lambda: child.sendline(os.getenv("EPSMP_PSW")),
-                    "[Mm]ulti-factor authentication is required.": lambda: child.sendline(
-                        pyotp.TOTP(
-                            os.getenv("EPSMP_TOTP_SECRET", ""), digits=6, interval=30
-                        ).now()
-                    ),
-                    "[Rr]eason for this operation:": lambda: child.sendline("BAU"),
-                    # Special cases:
-                    # SSH Logged in - don't check other patterns
-                    "[#\\$] ": lambda: None,
-                    # SCP copying file and/or closed
-                    "ETA": lambda: None,
-                    pexpect.EOF: lambda: None,
-                }
-            )
+            expected_answers: dict = {
+                "[Pp]assword:": lambda: child.sendline(os.getenv("EPSMP_PSW")),
+                "[Mm]ulti-factor authentication is required.": lambda: child.sendline(
+                    pyotp.TOTP(
+                        os.getenv("EPSMP_TOTP_SECRET", ""), digits=6, interval=30
+                    ).now()
+                ),
+                "[Rr]eason for this operation:": lambda: child.sendline("BAU"),
+                # Special cases:
+                # SSH Logged in - don't check other patterns
+                "[#\\$] ": lambda: None,
+                # SCP copying file
+                "ETA": lambda: None,
+                # Command finished/closed
+                pexpect.EOF: lambda: None,
+            }
 
             # This allows to "unblock" the prompt even if some expected prompts don't match
             for k in expected_answers.keys():
@@ -96,7 +94,7 @@ def main(cmd: str, ecmd: EasyCommand, argv: list) -> int:
                         logger.debug(f"Matched expected: '{the_key}'")
 
                         # Handle special cases - not the prettiest but it works 😅
-                        # of command already finished - EOF
+                        # if command already finished - EOF
                         # if SSH is already logged in
                         # if SCP started copying file
                         # don't check other matches, break the loop
