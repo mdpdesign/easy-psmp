@@ -71,7 +71,7 @@ def main(cmd: str, ecmd: EasyCommand, argv: list) -> int:
                     "[Pp]assword:": lambda: child.sendline(os.getenv("EPSMP_PSW")),
                     "[Mm]ulti-factor authentication is required.": lambda: child.sendline(
                         pyotp.TOTP(
-                            os.getenv("EPSMP_TOTP_SECRET"), digits=6, interval=30
+                            os.getenv("EPSMP_TOTP_SECRET", ""), digits=6, interval=30
                         ).now()
                     ),
                     "[Rr]eason for this operation:": lambda: child.sendline("BAU"),
