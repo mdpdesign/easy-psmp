@@ -3,11 +3,14 @@ ssh:
   arguments:
     - -o UserKnownHostsFile=/dev/null
     - -o StrictHostKeyChecking=no
-    - -o Port=22
+    - -o Compression=yes
+    - -o CheckHostIP=no
+    - -o ProxyCommand=pv -qL 1M | nc %h %p | pv -qL 1M
 
 scp:
   binary: /usr/bin/scp
   arguments:
     - -o UserKnownHostsFile=/dev/null
     - -o StrictHostKeyChecking=no
+    - -o ProxyCommand=pv -qL 1M | nc %h %p | pv -qL 1M
     - -P 2222

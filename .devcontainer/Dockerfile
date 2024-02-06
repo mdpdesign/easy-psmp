@@ -21,6 +21,8 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
         coreutils \
         unzip \
         locales \
+        pv \
+        netcat \
         # Pyenv build deps
         build-essential \
         libssl-dev \
