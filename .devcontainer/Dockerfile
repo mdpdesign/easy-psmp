@@ -63,9 +63,12 @@ RUN if ! grep -qE '^docker:' /etc/group; then \
 ARG TOOLS_TMP=/tmp/tools
 ARG LSD_VER=1.0.0
 ARG DIRENV_VER=2.33.0
+ARG LAZYGIT_VER=0.40.2
 RUN mkdir -m a=rwx -p ${TOOLS_TMP} && cd ${TOOLS_TMP} \
     && curl -sSL https://github.com/lsd-rs/lsd/releases/download/v${LSD_VER}/lsd_${LSD_VER}_amd64.deb -o lsd.deb \
+    && curl -sSL https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VER}/lazygit_${LAZYGIT_VER}_Linux_x86_64.tar.gz -o lazygit.tar.gz \
     && dpkg -i lsd.deb \
+    && tar -C /usr/local/bin -vxzf lazygit.tar.gz lazygit \
     && rm -rf ${TOOLS_TMP}
 
 RUN curl -sSL https://github.com/direnv/direnv/releases/download/v${DIRENV_VER}/direnv.linux-amd64 -o /usr/local/bin/direnv \
