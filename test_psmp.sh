@@ -5,9 +5,9 @@ set -euo pipefail
 # set -x
 
 declare -ra questions=(
-    "Password:"
-    "Multi-factor authentication is required."
-    "Provide a reason for this operation:"
+    "Provide password:"
+    "Provide token. Multi-factor authentication is required."
+    "Why are you logging in? Provide a reason for this operation:"
 )
 
 declare -a passed=()
@@ -17,8 +17,8 @@ for question in "${questions[@]}"; do
     echo "${question}"
 
     case "${question}" in
-        Pass*) match='^vagrant$' ;;
-        Multi*) match='[[:digit:]]{6}' ;;
+        *[Pp]assword*) match='^vagrant$' ;;
+        *[Mm]ulti*) match='[[:digit:]]{6}' ;;
         *reason*) match='^BAU$' ;;
         * ) echo "Did not match question!.."; exit 1 ;;
     esac
@@ -26,9 +26,9 @@ for question in "${questions[@]}"; do
     read -rs line < /dev/stdin
 
     if grep -qE "${match}" <<< "${line}"; then
-        passed+=("PASSED: ${question}")
+        passed+=("PASSED, expected: '${match}', got: '${line}'")
     else
-        failed+=("FAILED: ${question}, expected: '${match}', got: '${line}'")
+        failed+=("FAILED, expected: '${match}', got: '${line}'")
     fi
 
 done
@@ -39,3 +39,5 @@ printf '%s\n' "${passed[@]}"
 printf '%s\n' "${failed[@]}"
 
 [[ "${#failed[@]}" -gt 0 ]] && exit 1
+
+exit 0
