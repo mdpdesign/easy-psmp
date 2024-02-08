@@ -2,27 +2,40 @@
 
 set -euo pipefail
 
+# set -x
+
 declare -ra questions=(
     "Password:"
     "Multi-factor authentication is required."
     "Provide a reason for this operation:"
 )
 
+declare -a passed=()
+declare -a failed=()
+
 for question in "${questions[@]}"; do
     echo "${question}"
 
     case "${question}" in
-        Pass*) match='vagrant' ;;
+        Pass*) match='^vagrant$' ;;
         Multi*) match='[[:digit:]]{6}' ;;
-        *reason*) match='BAU' ;;
+        *reason*) match='^BAU$' ;;
         * ) echo "Did not match question!.."; exit 1 ;;
     esac
 
-    while read -s line; do
-        grep -qE "${match}" <<< "${line}" || { echo "Incorrect answer";  exit 1; }
-        echo "  Got ${line}, correct"
-        break
-    done < /dev/stdin
+    read -rs line < /dev/stdin
+
+    if grep -qE "${match}" <<< "${line}"; then
+        passed+=("PASSED: ${question}")
+    else
+        failed+=("FAILED: ${question}, expected: '${match}', got: '${line}'")
+    fi
+
 done
 
-echo "Tests done" && exit 0
+echo
+echo "TESTS SUMMARY:"
+printf '%s\n' "${passed[@]}"
+printf '%s\n' "${failed[@]}"
+
+[[ "${#failed[@]}" -gt 0 ]] && exit 1
