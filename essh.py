@@ -13,7 +13,7 @@ class EasySSH(EasyCommand):
 
         config: dict = load_config()
         self.binary = config.get("ssh", {}).get("binary", default_binary)
-        self.arguments = config.get("ssh", {}).get("arguments", default_arguments)
+        self.arguments = config.get("ssh", {}).get("arguments", default_arguments) or []
 
     def get_binary(self) -> str:
         return self.binary

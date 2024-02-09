@@ -13,7 +13,7 @@ class EasySCP(EasyCommand):
 
         config: dict = load_config()
         self.binary = config.get("scp", {}).get("binary", default_binary)
-        self.arguments = config.get("scp", {}).get("arguments", default_arguments)
+        self.arguments = config.get("scp", {}).get("arguments", default_arguments) or []
 
     def get_binary(self) -> str:
         return self.binary

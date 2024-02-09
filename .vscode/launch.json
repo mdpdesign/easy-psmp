@@ -12,9 +12,8 @@
             "console": "integratedTerminal",
             "args": [
                 "ssh",
-                "-l",
-                "vagrant",
-                "172.16.0.55"
+                "--debug",
+                "host"
             ]
         },
         {
