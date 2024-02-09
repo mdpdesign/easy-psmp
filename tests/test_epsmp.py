@@ -11,7 +11,7 @@ def test_epsmp(cmd: str):
     cmd_str: str = f"""
         /usr/bin/env bash -c '
             source .venv/bin/activate;
-            python epsmp.py {cmd} dummyhost
+            python epsmp.py {cmd} --debug dummyhost
         '
     """
 
