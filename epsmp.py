@@ -6,6 +6,7 @@ import signal
 import struct
 import sys
 import termios
+from logging import Logger
 from typing import Any, Callable
 
 import pexpect
@@ -42,25 +43,26 @@ def main(cmd: str, ecmd: EasyCommand, argv: list) -> int:
 
     # This function is inside the "main" to have access to "child" object that otherwise
     # would have to be a "global" object and we could have difficulties with context manager
+    # pylint: disable=unused-argument
     def sigwinch_passthrough(sig: int, data: Any) -> None:
         if not child.closed:
             child.setwinsize(*get_terminal_size())
 
-    logger = logging.getLogger("epsmp-logger")
+    logger: Logger = logging.getLogger("epsmp-logger")
     binary: str = ecmd.get_binary()
     opts: list = ecmd.get_arguments()
 
     try:
         with pexpect.spawn(binary, opts + argv, encoding="utf-8") as child:
 
-            logger.debug(f"Using '{binary}' binary, with arguments: {opts + argv}")
-            logger.debug(f"Setting child size {get_terminal_size()} and SIGWINCH")
+            logger.debug("Using '%s' binary, with arguments: %s", binary, opts + argv)
+            logger.debug("Setting child size %s and SIGWINCH", get_terminal_size())
 
             child.logfile_read = sys.stdout
             child.setwinsize(*get_terminal_size())
             signal.signal(signal.SIGWINCH, sigwinch_passthrough)
 
-            logger.debug(f"Starting expect")
+            logger.debug("Starting expect")
 
             # Beware of patterns to match:
             # If you pass a list of patterns and more than one matches, the first match in the stream is chosen.
@@ -82,16 +84,17 @@ def main(cmd: str, ecmd: EasyCommand, argv: list) -> int:
                 pexpect.EOF: lambda: None,
             }
 
+            expected_answers_keys: list = list(expected_answers.keys())
+
             # This allows to "unblock" the prompt even if some expected prompts don't match
-            for k in expected_answers.keys():
+            for _ in expected_answers:
                 try:
-                    keys: list = list(expected_answers.keys())
-                    index: int = child.expect(keys)
+                    index: int = child.expect(expected_answers_keys)
 
                     if index >= 0:
-                        the_key: Any = list(expected_answers.keys())[index]
+                        the_key: Any = expected_answers_keys[index]
 
-                        logger.debug(f"Matched expected: '{the_key}'")
+                        logger.debug("Matched expected: '%s'", the_key)
 
                         # Handle special cases - not the prettiest but it works 😅
                         # if command already finished - EOF
@@ -99,7 +102,7 @@ def main(cmd: str, ecmd: EasyCommand, argv: list) -> int:
                         # if SCP started copying file
                         # don't check other matches, break the loop
                         if the_key == pexpect.EOF:
-                            logger.debug(f"Command '{cmd}' closed - EOF")
+                            logger.debug("Command '%s' closed - EOF", cmd)
                             break
 
                         if cmd == "ssh" and the_key == "[#\\$] ":
@@ -114,7 +117,8 @@ def main(cmd: str, ecmd: EasyCommand, argv: list) -> int:
                         fn()
                 except pexpect.exceptions.TIMEOUT:
                     logger.debug(
-                        f"=== Failed to execute expect, didn't match any of: {list(expected_answers.keys())}, exiting!",
+                        "=== Failed to execute expect, didn't match any of: %s, exiting!",
+                        list(expected_answers.keys()),
                         exc_info=True,
                     )
                     child.close()
@@ -125,10 +129,12 @@ def main(cmd: str, ecmd: EasyCommand, argv: list) -> int:
             child.interact()
 
         logger.debug(
-            f"=== Finished expect, '{cmd}' command exit code: {child.exitstatus}"
+            "=== Finished expect, '%s' command exit code: %s", cmd, child.exitstatus
         )
         return child.exitstatus
-    except:
+
+    # pylint: disable=broad-exception-caught
+    except Exception:
         logger.debug("=== Failed to execute expect, exiting!", exc_info=True)
         return 1
 
@@ -149,16 +155,16 @@ if __name__ == "__main__":
     load_dotenv()
 
     # Note that setting EPSMP_DEBUG ENV var to any non-empty value will enable debug log
-    debug: bool = any([args.debug, os.getenv("EPSMP_DEBUG", False)])
+    debug: bool = any([args.debug, os.getenv("EPSMP_DEBUG")])
 
-    logger = logging.getLogger("epsmp-logger")
+    logger: Logger = logging.getLogger("epsmp-logger")
     logging.basicConfig(
         filename="epsmp-dbglog.log" if debug else None,
         level=logging.DEBUG if debug else logging.INFO,
         format="%(asctime)s - %(levelname)s - %(module)s - %(message)s",
     )
 
-    logger.debug(f"=== Starting '{sys.argv[0]}' script")
+    logger.debug("=== Starting '%s' script", sys.argv[0])
 
     ecmd: EasyCommand
 
@@ -170,4 +176,4 @@ if __name__ == "__main__":
         case _:
             raise AttributeError("Command not implemented")
 
-    exit(main(args.cmd, ecmd, args_other))
+    sys.exit(main(args.cmd, ecmd, args_other))

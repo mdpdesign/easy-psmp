@@ -1,5 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
+from logging import Logger
 from pathlib import Path, PosixPath
 
 import yaml
@@ -26,7 +27,7 @@ def load_config() -> dict:
         dict: dictionary with configuration settings, or empty dict when config file can't be loaded
     """
 
-    logger = logging.getLogger("epsmp-logger")
+    logger: Logger = logging.getLogger("epsmp-logger")
 
     try:
         logger.debug("Try to load Yaml configuration")
