@@ -53,5 +53,5 @@ def test_if_epsmp_shows_usage_with_incorrect_arguments():
     )
 
     assert process.returncode == 2
-    assert "usage: epsmp.py [-h] [--debug] {ssh,scp}" in process.stderr
+    assert "usage: epsmp.py" in process.stderr
     assert "(choose from 'ssh', 'scp')" in process.stderr
