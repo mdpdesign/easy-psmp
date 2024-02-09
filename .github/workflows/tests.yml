@@ -19,7 +19,7 @@ jobs:
         source .venv/bin/activate
         pip install -r requirements.txt
         pip install pylint
-    - name: Analysing the code with pylint - don't error out
+    - name: Analyse code with pylint - don't error out
       run: |
         source .venv/bin/activate
         pylint $(git ls-files '*.py') || true
