@@ -1,4 +1,5 @@
 import pty
+import re
 import subprocess
 from subprocess import CompletedProcess
 
@@ -53,5 +54,8 @@ def test_if_epsmp_shows_usage_with_incorrect_arguments():
     )
 
     assert process.returncode == 2
-    assert "usage: epsmp.py" in process.stderr
-    assert "(choose from 'ssh', 'scp')" in process.stderr
+
+    regex = (
+        r"^usage: epsmp.py.*argument cmd: invalid choice.*\(choose from 'ssh', 'scp'\)$"
+    )
+    assert re.search(regex, process.stderr, re.S | re.M)
