@@ -12,8 +12,8 @@ class EasySSH(EasyCommand):
         ]
 
         config: dict = load_config()
-        self.binary = config.get("ssh", {}).get("binary", default_binary)
-        self.arguments = config.get("ssh", {}).get("arguments", default_arguments) or []
+        self.binary = (config.get("ssh") or {}).get("binary") or default_binary
+        self.arguments = (config.get("ssh") or {}).get("arguments") or default_arguments
 
     def get_binary(self) -> str:
         return self.binary
