@@ -41,7 +41,7 @@ jobs:
         export EPSMP_PSW='vagrant'
         export EPSMP_TOTP_SECRET='BONOOW6FPJZAI6L7IZWW6B6445422VW5'
 
-        pytest --verbose --capture=no
+        pytest --verbose --capture=no --cov
 
     # For debugging purposes only
     # - name: Archive debug log
