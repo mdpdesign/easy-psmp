@@ -12,12 +12,12 @@ class EasyCommand(ABC):
     # pylint: disable=missing-function-docstring
     @abstractmethod
     def get_binary(self) -> str:
-        pass
+        raise NotImplementedError
 
     # pylint: disable=missing-function-docstring
     @abstractmethod
     def get_arguments(self) -> list:
-        pass
+        raise NotImplementedError
 
 
 def load_config() -> dict:

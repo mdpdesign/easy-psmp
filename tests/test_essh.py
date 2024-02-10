@@ -1,5 +1,3 @@
-from ast import arguments
-
 import pytest
 
 import essh
