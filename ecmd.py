@@ -1,5 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
+from logging import Logger
 from pathlib import Path, PosixPath
 
 import yaml
@@ -8,13 +9,15 @@ import yaml
 class EasyCommand(ABC):
     """Abstract class/interface for Easy-PSMP commands"""
 
+    # pylint: disable=missing-function-docstring
     @abstractmethod
     def get_binary(self) -> str:
-        pass
+        raise NotImplementedError
 
+    # pylint: disable=missing-function-docstring
     @abstractmethod
     def get_arguments(self) -> list:
-        pass
+        raise NotImplementedError
 
 
 def load_config() -> dict:
@@ -24,7 +27,7 @@ def load_config() -> dict:
         dict: dictionary with configuration settings, or empty dict when config file can't be loaded
     """
 
-    logger = logging.getLogger("epsmp-logger")
+    logger: Logger = logging.getLogger("epsmp-logger")
 
     try:
         logger.debug("Try to load Yaml configuration")
@@ -32,12 +35,14 @@ def load_config() -> dict:
         p: Path = Path(".")
         cfg_file: PosixPath = list(p.glob("epsmpcfg.y*ml"))[0]
 
-        with open(cfg_file.resolve().as_posix(), "r") as file:
+        with open(cfg_file.resolve().as_posix(), "r", encoding="utf-8") as file:
             config: dict = yaml.safe_load(file)
 
             logger.debug("Loading Yaml configuration successful")
             return config
-    except:
+
+    # pylint: disable=broad-exception-caught
+    except Exception:
         logger.debug(
             "Loading Yaml configuration failed, will use defaults - this is OK if config file doesn't exist"
         )

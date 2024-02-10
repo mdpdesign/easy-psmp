@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Dbg: Current File with Arguments",
+            "name": "Dbg: with Arguments",
             "type": "debugpy",
             "request": "launch",
-            "program": "${file}",
+            "program": "epsmp.py",
             "console": "integratedTerminal",
             "args": [
                 "ssh",
@@ -17,10 +17,10 @@
             ]
         },
         {
-            "name": "Dbg: Current File ask Arguments",
+            "name": "Dbg: ask Arguments",
             "type": "debugpy",
             "request": "launch",
-            "program": "${file}",
+            "program": "epsmp.py",
             "console": "integratedTerminal",
             "args": "${command:pickArgs}"
         }

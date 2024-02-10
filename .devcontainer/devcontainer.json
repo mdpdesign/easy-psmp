@@ -34,14 +34,20 @@
             // It's required to set host proxy to download VSCode extensions - it should be docker bridge interface (assuming cntlm is listening on all interfaces)
             "settings": {
                 "shellformat.useEditorConfig": true,
+                "python.terminal.activateEnvironment": true,
                 "python.terminal.activateEnvInCurrentTerminal": true,
+                "python.analysis.autoImportCompletions": true,
+	            "python.analysis.autoFormatStrings": true,
                 "python.testing.pytestArgs": ["tests", "--verbose"],
                 "python.testing.unittestEnabled": false,
                 "python.testing.pytestEnabled": true,
                 "python.analysis.typeCheckingMode": "basic",
                 "[python]": {
+                    "editor.formatOnSave": true,
                     "editor.defaultFormatter": "ms-python.black-formatter",
-                    "editor.formatOnSave": true
+                    "editor.codeActionsOnSave": {
+                        "source.organizeImports": "explicit"
+                    }
                 }
             },
 
@@ -57,6 +63,7 @@
                 "esbenp.prettier-vscode",
                 "formulahendry.code-runner",
                 "foxundermoon.shell-format",
+                "github.vscode-github-actions",
                 "hilleer.yaml-plus-json",
                 "mads-hartmann.bash-ide-vscode",
                 "mhutchie.git-graph",
