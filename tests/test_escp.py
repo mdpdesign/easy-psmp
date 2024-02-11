@@ -1,4 +1,5 @@
 import pytest
+from pytest import MonkeyPatch
 
 import escp
 from escp import EasySCP
@@ -17,7 +18,9 @@ from escp import EasySCP
         ),
     ],
 )
-def test_escp_default_arguments(attr: str, expected: list, monkeypatch) -> None:
+def test_escp_default_arguments(
+    attr: str, expected: list, monkeypatch: MonkeyPatch
+) -> None:
     monkeypatch.setattr(escp, "load_config", lambda: {})
 
     essh_obj: EasySCP = EasySCP()
@@ -37,7 +40,9 @@ def test_escp_default_arguments(attr: str, expected: list, monkeypatch) -> None:
         ),
     ],
 )
-def test_essh_non_default_arguments(attr: str, expected: list, monkeypatch) -> None:
+def test_essh_non_default_arguments(
+    attr: str, expected: list, monkeypatch: MonkeyPatch
+) -> None:
     monkeypatch.setattr(
         escp,
         "load_config",

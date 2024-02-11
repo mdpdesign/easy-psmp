@@ -1,14 +1,51 @@
+import pathlib
 import pty
 import re
 import subprocess
 from subprocess import CompletedProcess
 
 import pytest
+import yaml
+
+from epsmp import main
+from essh import EasySSH
+
+
+@pytest.fixture(scope="function")
+def create_test_config():
+    # create file
+    test_config = {
+        "ssh": {
+            "binary": "./tests/test_psmp.sh",
+        },
+        "scp": {
+            "binary": "./tests/test_psmp.sh",
+        },
+    }
+    file = open("epsmpcfg.yaml", "w", encoding="utf-8")
+    file.write(yaml.dump(test_config))
+    file.close()
+
+    yield file
+
+    # cleanup file
+    pathlib.Path("epsmpcfg.yaml").unlink()
+
+
+def test_if_psmp_main_exit_with_1_with_incorrect_host(create_test_config) -> None:
+    _ = create_test_config
+
+    ssh_obj = EasySSH()
+    ec: int = main("ssh", ssh_obj, ["host"])
+
+    assert ec == 1
 
 
 @pytest.mark.parametrize("cmd", ["ssh", "scp"])
-def test_if_epsmp_provides_correct_input(cmd: str):
+def test_if_epsmp_provides_correct_input(cmd: str, create_test_config):
     """Test if epsmp works properly when asked for input"""
+
+    _ = create_test_config
 
     cmd_str: str = f"""
         /usr/bin/env bash -c '
@@ -31,9 +68,11 @@ def test_if_epsmp_provides_correct_input(cmd: str):
     assert process.returncode == 0
 
 
-def test_if_epsmp_shows_usage_with_incorrect_arguments():
+def test_if_epsmp_shows_usage_with_incorrect_arguments(create_test_config):
     """Test if epsmp exits with error and shows usage
     when passed incorrect command argument"""
+
+    _ = create_test_config
 
     cmd_str: str = """
         /usr/bin/env bash -c '
