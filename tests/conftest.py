@@ -13,7 +13,7 @@ def set_env_variables() -> None:
     os.environ["EPSMP_TOTP_SECRET"] = pyotp.random_base32()
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def create_test_config() -> Generator[TextIO, Any, None]:
     # create file
     test_config: dict = {

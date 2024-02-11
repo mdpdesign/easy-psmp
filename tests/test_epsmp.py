@@ -1,43 +1,116 @@
-import os
-import pathlib
 import pty
 import re
 import subprocess
+import traceback
 from subprocess import CompletedProcess
 
-import pyotp
+import pexpect
 import pytest
-import yaml
+from pytest import MonkeyPatch
 
+from ecmd import EasyCommand
 from epsmp import main
 from essh import EasySSH
 
 
-@pytest.fixture(scope="function")
-def create_test_config():
-    # create file
-    test_config = {
-        "ssh": {
-            "binary": "./tests/test_psmp.sh",
-        },
-        "scp": {
-            "binary": "./tests/test_psmp.sh",
-        },
-    }
-    file = open("epsmpcfg.yaml", "w", encoding="utf-8")
-    file.write(yaml.dump(test_config))
-    file.close()
+class EasySSHMock(EasyCommand):
+    def get_binary(self):
+        return "cat"
 
-    yield file
-
-    # cleanup file
-    pathlib.Path("epsmpcfg.yaml").unlink()
+    def get_arguments(self):
+        return []
 
 
-def test_if_psmp_main_exit_with_1_with_incorrect_host(create_test_config) -> None:
-    _ = create_test_config
-    os.environ["EPSMP_PSW"] = "vagrant"
-    os.environ["EPSMP_TOTP_SECRET"] = pyotp.random_base32()
+class SpawnMock:
+    def __init__(self, *args, **kwargs):
+        self.index = kwargs.get("index")
+        self.exitstatus = kwargs.get("exitstatus")
+        self.raise_timeout = kwargs.get("raise_timeout")
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, tb):
+        if exc_type is not None:
+            traceback.print_exception(exc_type, exc_value, tb)
+
+    def setwinsize(self, *args, **kwargs):
+        pass
+
+    def expect(self, *args, **kwargs):
+        if self.raise_timeout:
+            raise pexpect.exceptions.TIMEOUT("Raising TIMEOUT")
+
+        return self.index
+
+    def sendline(self, *args, **kwargs):
+        pass
+
+    def interact(self):
+        pass
+
+    def close(self):
+        pass
+
+
+def test_if_psmp_main_ssh_logs_in(monkeypatch: MonkeyPatch) -> None:
+
+    def mock_get(*args, **kwargs) -> SpawnMock:
+        return SpawnMock(index=3, exitstatus=0)
+
+    monkeypatch.setattr("epsmp.get_terminal_size", lambda: (100, 20))
+    monkeypatch.setattr("pexpect.spawn", mock_get)
+
+    ssh_obj = EasySSHMock()
+    ec: int = main("ssh", ssh_obj, [])
+
+    assert ec == 0
+
+
+def test_if_psmp_main_scp_start_copy(monkeypatch: MonkeyPatch) -> None:
+
+    def mock_get(*args, **kwargs) -> SpawnMock:
+        return SpawnMock(index=4, exitstatus=0)
+
+    monkeypatch.setattr("epsmp.get_terminal_size", lambda: (100, 20))
+    monkeypatch.setattr("pexpect.spawn", mock_get)
+
+    ssh_obj = EasySSHMock()
+    ec: int = main("scp", ssh_obj, [])
+
+    assert ec == 0
+
+
+def test_if_psmp_main_exits_on_EOF(monkeypatch: MonkeyPatch) -> None:
+
+    def mock_get(*args, **kwargs) -> SpawnMock:
+        return SpawnMock(index=5, exitstatus=0)
+
+    monkeypatch.setattr("epsmp.get_terminal_size", lambda: (100, 20))
+    monkeypatch.setattr("pexpect.spawn", mock_get)
+
+    ssh_obj = EasySSHMock()
+    ec: int = main("ssh", ssh_obj, [])
+
+    assert ec == 0
+
+
+def test_if_psmp_main_exits_on_TIMEOUT(monkeypatch: MonkeyPatch) -> None:
+
+    def mock_get(*args, **kwargs) -> SpawnMock:
+        return SpawnMock(raise_timeout=True)
+
+    monkeypatch.setattr("epsmp.get_terminal_size", lambda: (100, 20))
+    monkeypatch.setattr("pexpect.spawn", mock_get)
+
+    ssh_obj = EasySSHMock()
+    ec: int = main("ssh", ssh_obj, [])
+
+    assert ec == 1
+
+
+def test_if_psmp_main_exit_with_1_with_incorrect_host(monkeypatch: MonkeyPatch) -> None:
+    monkeypatch.setattr("epsmp.get_terminal_size", lambda: (100, 20))
 
     ssh_obj = EasySSH()
     ec: int = main("ssh", ssh_obj, ["host"])
@@ -46,12 +119,8 @@ def test_if_psmp_main_exit_with_1_with_incorrect_host(create_test_config) -> Non
 
 
 @pytest.mark.parametrize("cmd", ["ssh", "scp"])
-def test_if_epsmp_provides_correct_input(cmd: str, create_test_config):
+def test_func_if_epsmp_provides_correct_input(cmd: str, create_test_config) -> None:
     """Test if epsmp works properly when asked for input"""
-
-    _ = create_test_config
-    os.environ["EPSMP_PSW"] = "vagrant"
-    os.environ["EPSMP_TOTP_SECRET"] = pyotp.random_base32()
 
     cmd_str: str = f"""
         /usr/bin/env bash -c '
@@ -74,13 +143,9 @@ def test_if_epsmp_provides_correct_input(cmd: str, create_test_config):
     assert process.returncode == 0
 
 
-def test_if_epsmp_shows_usage_with_incorrect_arguments(create_test_config):
+def test_func_if_epsmp_shows_usage_with_incorrect_arguments(create_test_config) -> None:
     """Test if epsmp exits with error and shows usage
     when passed incorrect command argument"""
-
-    _ = create_test_config
-    os.environ["EPSMP_PSW"] = "vagrant"
-    os.environ["EPSMP_TOTP_SECRET"] = pyotp.random_base32()
 
     cmd_str: str = """
         /usr/bin/env bash -c '
