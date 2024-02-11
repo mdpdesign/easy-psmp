@@ -1,9 +1,11 @@
+import os
 import pathlib
 import pty
 import re
 import subprocess
 from subprocess import CompletedProcess
 
+import pyotp
 import pytest
 import yaml
 
@@ -34,6 +36,8 @@ def create_test_config():
 
 def test_if_psmp_main_exit_with_1_with_incorrect_host(create_test_config) -> None:
     _ = create_test_config
+    os.environ["EPSMP_PSW"] = "vagrant"
+    os.environ["EPSMP_TOTP_SECRET"] = pyotp.random_base32()
 
     ssh_obj = EasySSH()
     ec: int = main("ssh", ssh_obj, ["host"])
@@ -46,6 +50,8 @@ def test_if_epsmp_provides_correct_input(cmd: str, create_test_config):
     """Test if epsmp works properly when asked for input"""
 
     _ = create_test_config
+    os.environ["EPSMP_PSW"] = "vagrant"
+    os.environ["EPSMP_TOTP_SECRET"] = pyotp.random_base32()
 
     cmd_str: str = f"""
         /usr/bin/env bash -c '
@@ -73,6 +79,8 @@ def test_if_epsmp_shows_usage_with_incorrect_arguments(create_test_config):
     when passed incorrect command argument"""
 
     _ = create_test_config
+    os.environ["EPSMP_PSW"] = "vagrant"
+    os.environ["EPSMP_TOTP_SECRET"] = pyotp.random_base32()
 
     cmd_str: str = """
         /usr/bin/env bash -c '
