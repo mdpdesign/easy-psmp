@@ -1,3 +1,4 @@
+import os
 import pty
 import re
 import subprocess
@@ -14,15 +15,18 @@ from essh import EasySSH
 
 
 class EasySSHMock(EasyCommand):
-    def get_binary(self):
-        return "cat"
+    def __init__(self, binary: str = "cat") -> None:
+        self.binary = binary
 
-    def get_arguments(self):
+    def get_binary(self) -> str:
+        return self.binary
+
+    def get_arguments(self) -> list:
         return []
 
 
 class SpawnMock:
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         self.index = kwargs.get("index")
         self.exitstatus = kwargs.get("exitstatus")
         self.raise_timeout = kwargs.get("raise_timeout")
@@ -109,10 +113,12 @@ def test_if_psmp_main_exits_on_TIMEOUT(monkeypatch: MonkeyPatch) -> None:
     assert ec == 1
 
 
-def test_if_psmp_main_exit_with_1_with_incorrect_host(monkeypatch: MonkeyPatch) -> None:
+def test_if_psmp_main_raise_exception_and_exits_with_1(
+    monkeypatch: MonkeyPatch,
+) -> None:
     monkeypatch.setattr("epsmp.get_terminal_size", lambda: (100, 20))
 
-    ssh_obj = EasySSH()
+    ssh_obj = EasySSHMock("nocommand")
     ec: int = main("ssh", ssh_obj, ["host"])
 
     assert ec == 1
