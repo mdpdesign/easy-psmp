@@ -1,0 +1,24 @@
+---
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: end-of-file-fixer
+      - id: check-json
+        exclude: .devcontainer/.*.json|.vscode/.*json
+      - id: check-yaml
+        args:
+          - --unsafe
+      - id: check-symlinks
+      - id: check-added-large-files
+      - id: check-executables-have-shebangs
+      - id: detect-private-key
+      - id: requirements-txt-fixer
+      - id: name-tests-test
+        args:
+          - --pytest-test-first
+
