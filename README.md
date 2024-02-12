@@ -2,6 +2,8 @@
 
 A set of scripts and utilities to work easier with CyberArk PSMP - mainly for SSH and SCP
 
+https://github.com/mdpdesign/easy-psmp/assets/5243838/75f848f2-ce1a-4286-9f4d-30e6091208ba
+
 ## SSH/SCP script setup
 
 ### Installation
