@@ -1,4 +1,3 @@
-import os
 import pty
 import re
 import subprocess
@@ -11,7 +10,6 @@ from pytest import MonkeyPatch
 
 from ecmd import EasyCommand
 from epsmp import main
-from essh import EasySSH
 
 
 class EasySSHMock(EasyCommand):
