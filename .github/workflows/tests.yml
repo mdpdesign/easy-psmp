@@ -28,19 +28,6 @@ jobs:
         source .venv/bin/activate
         set -x
 
-        : "Create dummy test config"
-        cat <<EOF > epsmpcfg.yaml
-        ssh:
-          binary: ./tests/test_psmp.sh
-
-        scp:
-          binary: ./tests/test_psmp.sh
-        EOF
-
-        chmod +x ./tests/test_psmp.sh
-        export EPSMP_PSW='vagrant'
-        export EPSMP_TOTP_SECRET='BONOOW6FPJZAI6L7IZWW6B6445422VW5'
-
         pytest --verbose --capture=no --cov
 
     # For debugging purposes only
