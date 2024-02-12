@@ -21,4 +21,3 @@ repos:
       - id: name-tests-test
         args:
           - --pytest-test-first
-
